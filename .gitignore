@@ -1,0 +1,9 @@
+target/
+.idea/
+.project
+.classpath
+.settings/
+*.iml
+.DS_Store
+logs/
+hs_err_pid*.log
