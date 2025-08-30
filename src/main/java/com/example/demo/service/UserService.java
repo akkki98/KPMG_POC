@@ -24,8 +24,7 @@ public class UserService {
 
     private final UserJpaRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    // Messaging disabled temporarily
-    // private final MessagingService messagingService;
+    private final MessagingService messagingService;
 
     /**
      * Registers a new user with PENDING status and publishes a message to Service Bus.
@@ -47,7 +46,11 @@ public class UserService {
                 .build();
         user = userRepository.save(user);
 
-    // Messaging call disabled
+        try {
+            messagingService.sendUserRegistration(new RegistrationEventPayload(user.getId(), user.getEmail(), user.getName(), user.getStatus().name()));
+        } catch (Exception e) {
+            log.error("Registration message send failed (continuing without blocking): {}", e.getMessage());
+        }
 
         return toResponse(user);
     }
@@ -97,4 +100,7 @@ public class UserService {
                 .build();
     }
 }
+
+// Simple payload DTO (package-private)
+record RegistrationEventPayload(java.util.UUID id, String email, String name, String status) {}
 
