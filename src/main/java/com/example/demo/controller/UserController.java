@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.*;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserJpaRepository;
+import org.springframework.beans.factory.annotation.Value;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ public class UserController {
     private final UserService userService;
     private final AuthService authService;
     private final UserJpaRepository userRepository;
+    @Value("${security.admin.emails:}")
+    private String adminEmails;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@RequestBody UserRegistrationDto dto) {
@@ -39,11 +42,18 @@ public class UserController {
         }
         User user = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        boolean isAdmin = false;
+        if (adminEmails != null && !adminEmails.isBlank()) {
+            for (String a : adminEmails.split(",")) {
+                if (a.trim().equalsIgnoreCase(user.getEmail())) { isAdmin = true; break; }
+            }
+        }
         return ResponseEntity.ok(UserResponseDto.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .status(user.getStatus().name())
+                .roles(isAdmin ? "ROLE_USER,ROLE_ADMIN" : "ROLE_USER")
                 .build());
     }
 

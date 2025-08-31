@@ -14,4 +14,5 @@ public class UserResponseDto {
     private String name;
     private String email;
     private String status;
+    private String roles; // comma-separated roles (e.g., ROLE_USER,ROLE_ADMIN)
 }
