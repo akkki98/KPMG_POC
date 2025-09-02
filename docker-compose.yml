@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  backend:
+    build: .
+    image: kpmg-backend:latest
+    container_name: kpmg-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      AZURE_SERVICEBUS_CONNECTION_STRING: ${AZURE_SERVICEBUS_CONNECTION_STRING}
+      SECURITY_JWT_SECRET_KEY: ${SECURITY_JWT_SECRET_KEY}
+      SECURITY_ADMIN_EMAILS: ${SECURITY_ADMIN_EMAILS:-admin@example.com}
+    # Uncomment if you need the backend to wait for DB, etc.
+    # depends_on: []
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    image: kpmg-frontend:latest
+    container_name: kpmg-frontend
+    ports:
+      - "3000:80" # Host 3000 -> container 80 (nginx)
+    depends_on:
+      - backend
+
+networks:
+  default:
+    name: kpmg-net
+
+# Create a .env file with the required secrets (never commit real secrets):
+# SPRING_DATASOURCE_URL=jdbc:sqlserver://<server>.database.windows.net:1433;database=<db>;encrypt=true;trustServerCertificate=false;loginTimeout=30;
+# SPRING_DATASOURCE_USERNAME=<user>
+# SPRING_DATASOURCE_PASSWORD=<password>
+# AZURE_SERVICEBUS_CONNECTION_STRING=Endpoint=sb://<namespace>.servicebus.windows.net/;SharedAccessKeyName=<KeyName>;SharedAccessKey=<KeyValue>;
+# SECURITY_JWT_SECRET_KEY=<base64_secret>
+# SECURITY_ADMIN_EMAILS=admin@example.com

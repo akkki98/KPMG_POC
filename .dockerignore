@@ -1,0 +1,11 @@
+target
+Frontend
+frontend
+node_modules
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+.env
+Dockerfile.frontend
